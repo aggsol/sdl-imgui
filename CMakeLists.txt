@@ -52,7 +52,6 @@ endif()
 # Add source to this project's executable.
 add_executable(sdl-imgui 
 	src/main.cpp
-	src/imgui_sdl/example.cpp
 	src/imgui_sdl/imgui_sdl.cpp
 	src/imgui/imgui.cpp 
 	src/imgui/imgui_draw.cpp
