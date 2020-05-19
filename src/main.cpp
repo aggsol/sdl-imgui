@@ -2,15 +2,18 @@
 
 #include <imgui.h>
 #include <imgui_sdl.h>
+#include <imgui_impl_sdl.h>
 
 int main()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Window* window = SDL_CreateWindow("SDL2 ImGui Renderer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_Window* window = SDL_CreateWindow("SDL2 ImGui Renderer", SDL_WINDOWPOS_CENTERED, 
+		SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
 
 	ImGui::CreateContext();
+	ImGui_ImplSDL2_InitForD3D(window);
 	ImGuiSDL::Initialize(renderer, 800, 600);
 
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, 100, 100);
@@ -21,16 +24,21 @@ int main()
 		SDL_SetRenderTarget(renderer, nullptr);
 	}
 
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
 	bool run = true;
 	while (run)
 	{
-		ImGuiIO& io = ImGui::GetIO();
+		//ImGuiIO& io = ImGui::GetIO();
 
-		int wheel = 0;
+		//int wheel = 0;
 
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
+			ImGui_ImplSDL2_ProcessEvent(&e);
 			if (e.type == SDL_QUIT) run = false;
 			else if (e.type == SDL_WINDOWEVENT)
 			{
@@ -40,9 +48,13 @@ int main()
 					io.DisplaySize.y = static_cast<float>(e.window.data2);
 				}
 			}
-			else if (e.type == SDL_MOUSEWHEEL)
+			//else if (e.type == SDL_MOUSEWHEEL)
+			//{
+			//	wheel = e.wheel.y;
+			//}
+			if(io.WantCaptureKeyboard || io.WantCaptureMouse)
 			{
-				wheel = e.wheel.y;
+				
 			}
 		}
 
@@ -51,13 +63,15 @@ int main()
 
 		// Setup low-level inputs (e.g. on Win32, GetKeyboardState(), or write to those fields from your Windows message loop handlers, etc.)
 		
-		io.DeltaTime = 1.0f / 60.0f;
-		io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
-		io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
-		io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
-		io.MouseWheel = static_cast<float>(wheel);
+		//io.DeltaTime = 1.0f / 60.0f;
+		//io.MousePos = ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
+		//io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
+		//io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
+		//io.MouseWheel = static_cast<float>(wheel);
 
+		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
+
 
 		ImGui::ShowDemoWindow();
 
@@ -76,10 +90,13 @@ int main()
 
 	ImGuiSDL::Deinitialize();
 
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 
-	ImGui::DestroyContext();
+	SDL_Quit();
 
 	return 0;
 }

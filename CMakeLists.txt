@@ -19,6 +19,36 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+# Common compiler flags
+add_library(common INTERFACE)
+
+if(MSVC)
+target_compile_options(common
+INTERFACE
+	/W4
+	/WX
+	/GS
+	/GR-
+)
+else()
+target_compile_options(common
+INTERFACE
+	-Wall 
+	-Wextra 
+	-Wshadow 
+	-Wnon-virtual-dtor
+	-Wold-style-cast
+	-Woverloaded-virtual 
+	-Wzero-as-null-pointer-constant
+	-pedantic 
+	-fPIE 
+	-fstack-protector-all 
+	-fno-rtti
+)
+
+endif()
+
+
 # Add source to this project's executable.
 add_executable(sdl-imgui 
 	src/main.cpp
@@ -28,8 +58,14 @@ add_executable(sdl-imgui
 	src/imgui/imgui_draw.cpp
 	src/imgui/imgui_widgets.cpp
 	src/imgui/imgui_demo.cpp
+	src/imgui/imgui_impl_sdl.cpp 
 )
-target_link_libraries(sdl-imgui ${SDL2_LIBRARIES})
+
+target_link_libraries(sdl-imgui
+PRIVATE
+	common
+	${SDL2_LIBRARIES})
+
 target_include_directories(sdl-imgui 
 PRIVATE 
 	src/imgui/
