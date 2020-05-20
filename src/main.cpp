@@ -4,6 +4,7 @@
 #include <imgui_sdl.h>
 #include <imgui_impl_sdl.h>
 
+#include <cassert>
 #include <iostream>
 
 int main()
@@ -12,15 +13,16 @@ int main()
 
 	SDL_Window* window = SDL_CreateWindow("SDL2 ImGui Renderer", SDL_WINDOWPOS_CENTERED, 
 		SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	assert(renderer);
 
 	ImGui::CreateContext();
 	ImGui_ImplSDL2_InitForMetal(window);
 	ImGuiSDL::Initialize(renderer, 800, 600);
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 	bool run = true;
 	while (run)
